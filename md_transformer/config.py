@@ -18,7 +18,7 @@ def load_config(path: Path) -> dict:
     if not key or key in ("填写你的key", "填写你的 key"):
         raise ValueError(f"请在 {path} 中填写真实的 VLLM_API_KEY")
     try:
-        concurrency = int(values.get("CONCURRENCY", "4"))
+        concurrency = int(values.get("CONCURRENCY", "5"))
         requests_per_worker = int(values.get("SURYA_INFERENCE_PARALLEL", "8"))
     except (TypeError, ValueError):
         raise ValueError(".env 中 CONCURRENCY 和 SURYA_INFERENCE_PARALLEL 必须是正整数") from None
