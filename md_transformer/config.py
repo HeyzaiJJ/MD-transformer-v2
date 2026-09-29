@@ -18,8 +18,8 @@ def load_config(path: Path) -> dict:
     if not key or key in ("填写你的key", "填写你的 key"):
         raise ValueError(f"请在 {path} 中填写真实的 VLLM_API_KEY")
     try:
-        concurrency = int(values.get("CONCURRENCY", "5"))
-        requests_per_worker = int(values.get("SURYA_INFERENCE_PARALLEL", "8"))
+        concurrency = int(values.get("CONCURRENCY", "4"))
+        requests_per_worker = int(values.get("SURYA_INFERENCE_PARALLEL", "10"))
     except (TypeError, ValueError):
         raise ValueError(".env 中 CONCURRENCY 和 SURYA_INFERENCE_PARALLEL 必须是正整数") from None
     if concurrency < 1 or requests_per_worker < 1:
@@ -42,3 +42,4 @@ def check_service(url: str, key: str) -> None:
                     raise ValueError(f"Surya 服务检查失败（HTTP {response.status_code}）：{endpoint}")
     except httpx.RequestError:
         raise ValueError(f"无法连接 Surya：{url}，请检查服务、端口和网络") from None
+

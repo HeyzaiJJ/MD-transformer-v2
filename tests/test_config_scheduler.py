@@ -22,8 +22,8 @@ class RegressionTests(unittest.TestCase):
             with patch.dict('os.environ', {'SURYA_INFERENCE_URL': 'http://127.0.0.1:8456'}):
                 config = load_config(path)
             self.assertEqual(config['surya_url'], 'http://192.168.11.13:8456/v1')
-            self.assertEqual(config['concurrency'], 5)
-            self.assertEqual(config['requests_per_worker'], 8)
+            self.assertEqual(config['concurrency'], 4)
+            self.assertEqual(config['requests_per_worker'], 10)
             path.write_text(path.read_text(encoding='utf-8-sig') + 'CONCURRENCY=no\n', encoding='utf-8')
             with self.assertRaises(ValueError):
                 load_config(path)
@@ -54,21 +54,22 @@ class RegressionTests(unittest.TestCase):
             return future
         with patch('md_transformer.scheduler.ProcessPoolExecutor') as pool:
             pool.return_value.__enter__.return_value.submit.side_effect = submit
-            success, failed, oom = run_batch(jobs, mode='balanced', concurrency=5, requests_per_worker=8,
+            success, failed, oom = run_batch(jobs, mode='balanced', concurrency=4, requests_per_worker=10,
                                              surya_url='http://host/v1', api_key='test')
         self.assertEqual(pool.call_count, 1)
-        self.assertEqual(pool.call_args.kwargs['max_workers'], 5)
-        self.assertEqual(pool.call_args.kwargs['initargs'], ('http://host/v1', 'test', 'balanced', 8))
+        self.assertEqual(pool.call_args.kwargs['max_workers'], 4)
+        self.assertEqual(pool.call_args.kwargs['initargs'], ('http://host/v1', 'test', 'balanced', 10))
         self.assertEqual(len(submitted), 13)
         self.assertEqual(len(set(submitted)), 13)
         self.assertEqual((len(success), len(failed), oom), (11, 2, 1))
 
     def test_empty_batch_does_not_create_pool(self):
         with patch('md_transformer.scheduler.ProcessPoolExecutor') as pool:
-            self.assertEqual(run_batch([], mode='balanced', concurrency=5, requests_per_worker=8,
+            self.assertEqual(run_batch([], mode='balanced', concurrency=4, requests_per_worker=10,
                              surya_url='http://host/v1', api_key='test'), ([], {}, 0))
             pool.assert_not_called()
 
 
 if __name__ == '__main__':
     unittest.main()
+
